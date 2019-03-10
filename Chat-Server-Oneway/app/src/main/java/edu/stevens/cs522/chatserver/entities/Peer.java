@@ -37,6 +37,7 @@ public class Peer implements Parcelable, Persistable {
         this.name = PeerContract.getName(cursor);
         this.timestamp = new Date(PeerContract.getTimestamp(cursor));
         this.address = InetAddressUtils.fromString(PeerContract.getAddress(cursor).substring(1));
+    //    this.id = PeerContract.getId(cursor);
     }
 
     public Peer(Parcel in) throws UnknownHostException {
@@ -45,6 +46,7 @@ public class Peer implements Parcelable, Persistable {
         this.timestamp = new Date(in.readLong());
         in.readByteArray(ipIn);
         this.address = InetAddress.getByAddress(ipIn);
+        this.id = in.readLong();
     }
 
     @Override
@@ -52,6 +54,7 @@ public class Peer implements Parcelable, Persistable {
         PeerContract.putName(out, this.name);
         PeerContract.putTimestamp(out, this.timestamp.getTime());
         PeerContract.putAddress(out, this.address.toString());
+      //  PeerContract.putId(out, this.id);
     }
 
     @Override
@@ -64,6 +67,7 @@ public class Peer implements Parcelable, Persistable {
         out.writeString(this.name);
         DateUtils.writeDate(out, this.timestamp);
         out.writeByteArray(this.address.getAddress());
+        out.writeLong(this.id);
     }
 
     public static final Creator<Peer> CREATOR = new Creator<Peer>() {

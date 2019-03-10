@@ -64,6 +64,8 @@ public class ViewPeersActivity extends Activity implements AdapterView.OnItemCli
         if (cursor.moveToPosition(position)) {
             Intent intent = new Intent(this, ViewPeerActivity.class);
             Peer peer = new Peer(cursor);
+            peer.id = id; //This is kind of a hack, but the cursor constructor crashes during insert
+            //So inserting it now between parcelables is the option I am going with unfortunately
             intent.putExtra(ViewPeerActivity.PEER_KEY, peer);
             startActivity(intent);
         } else {

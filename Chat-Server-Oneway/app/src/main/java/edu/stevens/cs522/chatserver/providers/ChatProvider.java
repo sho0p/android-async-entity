@@ -58,13 +58,13 @@ public class ChatProvider extends ContentProvider {
                         MessageContract.TIMESTAMP + " LONG NOT NULL, " +
                         MessageContract.SENDER + " TEXT NOT NULL, " +
                         MessageContract.SENDER_ID + " INTEGER NOT NULL, " +
-                        MessageContract.ID + " INTEGER PRIMARY KEY, " +
+                        MessageContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         "FOREIGN KEY (" + MessageContract.SENDER_ID+ ") REFERENCES " + PEERS_TABLE + "(" + PeerContract.ID + ") ON DELETE CASCADE" +
                         "); ";
         private static final String PEER_DATABASE_CREATE =
                 "CREATE TABLE IF NOT EXISTS " +
                         PEERS_TABLE + "( " +
-                        PeerContract.ID + " INTEGER PRIMARY KEY, " +
+                        PeerContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         PeerContract.NAME + " TEXT NOT NULL, " +
                         PeerContract.TIMESTAMP + " TEXT NOT NULL, " +
                         PeerContract.ADDRESS + " TEXT NOT NULL" +
@@ -144,7 +144,7 @@ public class ChatProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case MESSAGES_ALL_ROWS:
                 // Make sure to notify any observers
-                long mess_row = db.insert(MESSAGES_TABLE, null, values);
+                long mess_row = db.insert (MESSAGES_TABLE, null, values);
                 if(mess_row >= 0){
                     Uri instanceUri = MessageContract.CONTENT_URI(mess_row);
                     Log.d("Debug", "message instanceUri = " + instanceUri.toString());
@@ -155,7 +155,8 @@ public class ChatProvider extends ContentProvider {
             case PEERS_ALL_ROWS:
                 String selection = PeerContract.NAME + "=?";
                 String[] selectionArgs = {values.getAsString(PeerContract.NAME)};
-                if(!query(uri, null, selection, selectionArgs, null).moveToFirst()) {
+                Cursor isIn = query(uri, null, selection, selectionArgs, null);
+                if(!isIn.moveToFirst()) {
                     long peerrow = db.insert(PEERS_TABLE, null, values);
                     if (peerrow > 0) {
                         Uri instanceUri = PeerContract.CONTENT_URI(peerrow);
@@ -164,10 +165,14 @@ public class ChatProvider extends ContentProvider {
                         return instanceUri;
                     }
                 }
-                Uri instanceUri = PeerContract.CONTENT_URI(update(uri, values, selection, selectionArgs));
+                Log.d("Debug", "uri sent for updating: " + uri.toString());
+                String updateSelection = PeerContract.ID + "=?";
+                Long idToUpdate = isIn.getLong(isIn.getColumnIndexOrThrow(PeerContract.ID));
+                String[] updateSelectionArgs = {Long.toString(idToUpdate)};
+                update(PeerContract.CONTENT_URI(idToUpdate), values, updateSelection, updateSelectionArgs);
+                Uri instanceUri = PeerContract.CONTENT_URI(idToUpdate);
                 Log.d("Debug", "peer instanceUri = " + instanceUri.toString());
                 return  instanceUri;
-               // return PeerContract.CONTENT_URI(db.insertWithOnConflict(PEERS_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE));
             case MESSAGES_SINGLE_ROW:
                 throw new IllegalArgumentException("insert expects a whole-table URI");
             default:
@@ -216,7 +221,9 @@ public class ChatProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        return db.update(uri.getLastPathSegment(), values, selection, selectionArgs);
+        String table = uri.toString().split("/")[3];
+        values.put(PeerContract.ID, Long.parseLong(uri.getLastPathSegment()));
+        return db.update(table, values, selection, selectionArgs);
     }
 
     @Override

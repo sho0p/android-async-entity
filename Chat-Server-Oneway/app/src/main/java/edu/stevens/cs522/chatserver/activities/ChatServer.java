@@ -162,30 +162,18 @@ public class ChatServer extends Activity implements OnClickListener, IQueryListe
             sender.name = message.sender;
             sender.timestamp = message.timestamp;
             sender.address = receivePacket.getAddress();
-
-
-         //   sender.id = sender.name.hashCode();
-
-          //  if (sender.id < 0) sender.id = -1 * sender.id;
-
-          //  message.senderId = sender.id;
-         //   message.id = (message.sender + message.timestamp + message.messageText).hashCode();
-          //  if (message.id < 0) message.id = -1 * message.id;
-
-
-  //          messageManager.getAllMessagesAsync(this);
-           // messageManager.persistAsync(message);
             peerManager.persistAsync(sender,
                     new IContinue<Long>() {
                         @Override
                         public void kontinue(Long id) {
-                            Log.d("Returned id from peer", id.toString());
+                            Log.d( "Returned id from peer", id.toString());
+                            sender.id = id;
                             message.senderId = id;
                             Log.d("Message senderID", Long.toString(message.senderId));
                             messageManager.persistAsync(message);
+                            Log.d("Message senderID", Long.toString(message.senderId));
                         }
                    });
-            Log.d(TAG, "messenger sender id: " + message.senderId);
             messageManager.getAllMessagesAsync(this);
 
             // For this assignment, must use managers to do this asynchronously

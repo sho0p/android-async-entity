@@ -29,28 +29,31 @@ public class Message implements Parcelable, Persistable {
     }
 
     public Message(Cursor cursor) {
-       // this.id = MessageContract.getId(cursor);
+       //
         this.messageText = MessageContract.getMessageText(cursor);
         this.timestamp = new Date(MessageContract.getTimestamp(cursor));
         this.sender = MessageContract.getSender(cursor);
         this.senderId = MessageContract.getSenderId(cursor);
+       // this.id = MessageContract.getId(cursor);
     }
 
     public Message(Parcel in) {
-     //   this.id = in.readLong();
+     //
         this.messageText = in.readString();
         this.timestamp = new Date(in.readLong());
         this.sender = in.readString();
         this.senderId = in.readLong();
+      //  this.id = in.readLong();
     }
 
     @Override
     public void writeToProvider(ContentValues out) {
-     //   MessageContract.putId(out, this.id);
+     //
         MessageContract.putMessageText(out, this.messageText);
         MessageContract.putTimestamp(out, this.timestamp.getTime());
         MessageContract.putSender(out, this.sender);
         MessageContract.putSenderId(out, this.senderId);
+    //    MessageContract.putId(out, this.id);
     }
 
     @Override
@@ -60,11 +63,12 @@ public class Message implements Parcelable, Persistable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-    //    dest.writeLong(this.id);
+    //
         dest.writeString(this.messageText);
         dest.writeLong(this.timestamp.getTime());
         dest.writeString(this.sender);
         dest.writeLong(this.senderId);
+     //   dest.writeLong(this.id);
     }
 
     public static final Creator<Message> CREATOR = new Creator<Message>() {

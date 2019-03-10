@@ -41,7 +41,7 @@ public class MessageContract extends BaseContract {
 
 
 
-    public static final String[] PROJECTION = {ID, MESSAGE_TEXT, TIMESTAMP, SENDER };
+    public static final String[] PROJECTION = {ID, MESSAGE_TEXT, TIMESTAMP, SENDER, SENDER_ID};
 
     private static int messageTextColumn = -1;
     private static int timeStampColumn = -1;
